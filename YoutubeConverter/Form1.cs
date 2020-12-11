@@ -1,98 +1,102 @@
-﻿using NReco.VideoConverter;
-using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using VideoLibrary;
-using YoutubeConverter.Properties;
 using YoutubeExplode;
+using YoutubeExplode.Videos.Streams;
 
 namespace YoutubeConverter
 {
     public partial class Form1 : Form
     {
         private YoutubeClient client = new YoutubeClient();
+        private CancellationTokenSource cancellationToken;
 
         public Form1()
         {
             InitializeComponent();
         }
 
-        private void BtnDownload_Click(object sender, EventArgs e)
-        {
-                    
-        }
-
         private void Form1_Load(object sender, EventArgs e)
         {
-            btnDownload.Visible = false;
+            textBox1.Text = "https://www.youtube.com/watch?v=X48VuDVv0do";
+            lblDownloading.Visible = true;
+            btnCancel.Visible = false;
+            Label.CheckForIllegalCrossThreadCalls = false;
+            Button.CheckForIllegalCrossThreadCalls = false;
         }
 
         private void Button1_Click(object sender, EventArgs e)
         {
+            btnDonwloadVideo.Enabled = false;
+            btnDonwloadVideo.Text = "Downloading...";
+            lblDownloading.Visible = false;
             try
             {
-                var link = textBox1.Text;
-                lblTitle.Tag = YoutubeClient.ParseVideoId(link);
-                var playlist = client.GetPlaylistAsync(lblTitle.Tag.ToString()).Result;
-                var video = playlist.Videos.First();
-                lblTitle.Text = video.Title;                
+                if (string.IsNullOrEmpty(textBox1.Text))
+                {
+                    MessageBox.Show("Please type a valid Youtube Url");
+                    return;
+                }
+
+                btnCancel.Visible = true;
+
+                var youtubeFile = textBox1.Text;
+                var youtube = new YoutubeClient();
+
+                cancellationToken = new CancellationTokenSource();
+
+                Task.Run( async () =>
+                {
+
+                    return (await youtube.Videos.Streams.GetManifestAsync(youtubeFile))
+                        .GetVideoOnly()
+                        .Where(s => s.Container == YoutubeExplode.Videos.Streams.Container.Mp4)
+                        .WithHighestVideoQuality();
+
+                }, cancellationToken.Token).ContinueWith((taskStramInfoVideo) =>
+                {
+                    var stramInfoVideo = taskStramInfoVideo.Result;
+
+                    lblDownloading.Text = $"Downloading file using {stramInfoVideo.Container} format ...";
+                    lblDownloading.Visible = true;
+
+                    var downloadFolder = System.IO.Path.Combine(System.Environment.CurrentDirectory, "Downloads");
+                    if (!System.IO.Directory.Exists(downloadFolder))
+                    {
+                        System.IO.Directory.CreateDirectory(downloadFolder);
+                    }
+                    var file = System.IO.Path.Combine(downloadFolder, $"{Guid.NewGuid()}.{stramInfoVideo.Container}");
+
+                    youtube.Videos.Streams.DownloadAsync(stramInfoVideo, file).Wait();
+
+                    return file;
+                }, cancellationToken.Token).ContinueWith((file) => 
+                {
+                    if (file.Status == TaskStatus.RanToCompletion)
+                    {
+                        lblDownloading.Text = $"Download! {file.Result}";
+                        btnDonwloadVideo.Enabled = true;
+                    }                   
+                });
+                
             }
-            catch 
+            catch (Exception ex)
             {
-                lblTitle.Text = Guid.NewGuid().ToString();
-            }
-            finally
-            {
-                btnDownload.Visible = true;
+                MessageBox.Show($"Error downloading file! {ex}");
+                btnCancel.Visible = false;
             }
         }
 
-        private void BtnDownload_Click_1(object sender, EventArgs e)
+        private void btnCancel_Click(object sender, EventArgs e)
         {
-            btnDownload.Enabled = false;
-            try
-            {
-                var file = $@"C:\Temp\Download\{lblTitle.Text}.mp4";
-                var streamInfoSet = client.GetVideoMediaStreamInfosAsync(lblTitle.Tag.ToString()).Result.Muxed.FirstOrDefault();
-                // Download stream to file
-                var download = client.DownloadMediaStreamAsync(streamInfoSet, file);
-                while (!download.IsCompleted)
-                {
-                    System.Threading.Thread.Sleep(1000);
-                }
-                MessageBox.Show($"Download Complete {file}");
-            }
-            finally
-            {
-                btnDownload.Enabled = true;
-                btnDownload.Visible = false;
-            }
-        }
-
-        private void BtnConvert_Click(object sender, EventArgs e)
-        {
-            if (dlgMp4.ShowDialog() == DialogResult.OK)
-            {
-                btnConvert.Enabled = false;
-                try
-                {
-                    var output = Path.ChangeExtension(dlgMp4.FileName, "mp3");
-                    ConvertToMp3(dlgMp4.FileName, output);
-                    MessageBox.Show($"Complete!");
-                }
-                finally
-                {
-                    btnConvert.Enabled = true;
-                }
-            }
-        }
-
-        private void ConvertToMp3(string inputFile, string outputFile)
-        {
-            var ffMpeg = new NReco.VideoConverter.FFMpegConverter();
-            ffMpeg.ConvertMedia(inputFile, outputFile, Format.mp4);
+            cancellationToken.Cancel();
+            btnCancel.Visible = false;
+            btnDonwloadVideo.Enabled = true;
+            lblDownloading.Visible = true;
+            lblDownloading.Text = "Download was canceled";
+            btnDonwloadVideo.Text = "Download";
         }
     }
 }
