@@ -1,17 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using YoutubeExplode;
-using YoutubeExplode.Videos.Streams;
+using YoutubeConverter.Factory;
 
 namespace YoutubeConverter
 {
     public partial class Form1 : Form
     {
-        private YoutubeClient client = new YoutubeClient();
-        private CancellationTokenSource cancellationToken;
+        private List<DownloadTask> rows = new List<DownloadTask>();
+        static readonly object lockControl = new object();
 
         public Form1()
         {
@@ -20,83 +20,90 @@ namespace YoutubeConverter
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            textBox1.Text = "https://www.youtube.com/watch?v=X48VuDVv0do";
             lblDownloading.Visible = true;
-            btnCancel.Visible = false;
+            //btnCancel.Visible = false;
             Label.CheckForIllegalCrossThreadCalls = false;
             Button.CheckForIllegalCrossThreadCalls = false;
+
+            SetupGrid();
         }
 
-        private void Button1_Click(object sender, EventArgs e)
+        private void SetupGrid()
         {
-            btnDonwloadVideo.Enabled = false;
-            btnDonwloadVideo.Text = "Downloading...";
-            lblDownloading.Visible = false;
+            rows.Clear();
+
+            dtgYoutube.AutoGenerateColumns = false;
+            dtgYoutube.ReadOnly = true;
+            dtgYoutube.DataSource = rows.ToList();
+            dtgYoutube.Refresh();
+
+            DataGridView.CheckForIllegalCrossThreadCalls = false;
+        }
+
+        private void RefreshGrid()
+        {
+            lock (lockControl)
+            {
+                try
+                {
+                    dtgYoutube.DataSource = rows.ToList();
+                    dtgYoutube.Refresh();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }            
+        }        
+
+        private void btnDonwloadVideo_Click(object sender, EventArgs e)
+        {
             try
             {
-                if (string.IsNullOrEmpty(textBox1.Text))
+                if (string.IsNullOrEmpty(cbxYoutubeVideo.Text))
                 {
                     MessageBox.Show("Please type a valid Youtube Url");
                     return;
                 }
 
-                btnCancel.Visible = true;
-
-                var youtubeFile = textBox1.Text;
-                var youtube = new YoutubeClient();
-
-                cancellationToken = new CancellationTokenSource();
-
-                Task.Run( async () =>
+                var cancellationTokenSource = new CancellationTokenSource();
+                var downloadTask = DownloadFactory.Create(cbxYoutubeVideo.Text, cancellationTokenSource);
+                DownloadFactory.Download(downloadTask).ContinueWith((tk)=> 
                 {
-
-                    return (await youtube.Videos.Streams.GetManifestAsync(youtubeFile))
-                        .GetVideoOnly()
-                        .Where(s => s.Container == YoutubeExplode.Videos.Streams.Container.Mp4)
-                        .WithHighestVideoQuality();
-
-                }, cancellationToken.Token).ContinueWith((taskStramInfoVideo) =>
-                {
-                    var stramInfoVideo = taskStramInfoVideo.Result;
-
-                    lblDownloading.Text = $"Downloading file using {stramInfoVideo.Container} format ...";
-                    lblDownloading.Visible = true;
-
-                    var downloadFolder = System.IO.Path.Combine(System.Environment.CurrentDirectory, "Downloads");
-                    if (!System.IO.Directory.Exists(downloadFolder))
+                    if (tk != null && tk.Status == TaskStatus.RanToCompletion)
                     {
-                        System.IO.Directory.CreateDirectory(downloadFolder);
+                        tk.Result.Complete();
                     }
-                    var file = System.IO.Path.Combine(downloadFolder, $"{Guid.NewGuid()}.{stramInfoVideo.Container}");
-
-                    youtube.Videos.Streams.DownloadAsync(stramInfoVideo, file).Wait();
-
-                    return file;
-                }, cancellationToken.Token).ContinueWith((file) => 
-                {
-                    if (file.Status == TaskStatus.RanToCompletion)
-                    {
-                        lblDownloading.Text = $"Download! {file.Result}";
-                        btnDonwloadVideo.Enabled = true;
-                    }                   
+                    //RefreshGrid();
                 });
-                
+                rows.Add(downloadTask);
+                RefreshGrid();
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Error downloading file! {ex}");
-                btnCancel.Visible = false;
             }
         }
 
-        private void btnCancel_Click(object sender, EventArgs e)
+        private void dtgYoutube_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            cancellationToken.Cancel();
-            btnCancel.Visible = false;
-            btnDonwloadVideo.Enabled = true;
-            lblDownloading.Visible = true;
-            lblDownloading.Text = "Download was canceled";
-            btnDonwloadVideo.Text = "Download";
+            try
+            {
+                var senderGrid = (DataGridView)sender;
+                if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
+                {
+                    var task = dtgYoutube.Rows[e.RowIndex].DataBoundItem as DownloadTask;
+                    if (task.CanCancel)
+                    {
+                        task.Cancel();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
     }
 }

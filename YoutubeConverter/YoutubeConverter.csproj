@@ -153,6 +153,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factory\DownloadFactory.cs" />
+    <Compile Include="Factory\DownloadTask.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
