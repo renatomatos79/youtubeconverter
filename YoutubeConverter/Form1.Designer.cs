@@ -59,10 +59,10 @@
             // btnDonwloadVideo
             // 
             this.btnDonwloadVideo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDonwloadVideo.Location = new System.Drawing.Point(758, 23);
+            this.btnDonwloadVideo.Location = new System.Drawing.Point(755, 23);
             this.btnDonwloadVideo.Name = "btnDonwloadVideo";
             this.btnDonwloadVideo.Size = new System.Drawing.Size(122, 23);
-            this.btnDonwloadVideo.TabIndex = 3;
+            this.btnDonwloadVideo.TabIndex = 2;
             this.btnDonwloadVideo.Text = "Download";
             this.btnDonwloadVideo.UseVisualStyleBackColor = true;
             this.btnDonwloadVideo.Click += new System.EventHandler(this.btnDonwloadVideo_Click);
@@ -101,8 +101,8 @@
             this.dtgYoutube.Name = "dtgYoutube";
             this.dtgYoutube.ReadOnly = true;
             this.dtgYoutube.RowHeadersVisible = false;
-            this.dtgYoutube.Size = new System.Drawing.Size(865, 192);
-            this.dtgYoutube.TabIndex = 6;
+            this.dtgYoutube.Size = new System.Drawing.Size(862, 200);
+            this.dtgYoutube.TabIndex = 4;
             this.dtgYoutube.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dtgYoutube_CellContentClick);
             // 
             // ProcessId
@@ -171,8 +171,8 @@
             "https://www.youtube.com/watch?v=b9Gb9v675YI"});
             this.cbxYoutubeVideo.Location = new System.Drawing.Point(15, 25);
             this.cbxYoutubeVideo.Name = "cbxYoutubeVideo";
-            this.cbxYoutubeVideo.Size = new System.Drawing.Size(578, 21);
-            this.cbxYoutubeVideo.TabIndex = 7;
+            this.cbxYoutubeVideo.Size = new System.Drawing.Size(575, 21);
+            this.cbxYoutubeVideo.TabIndex = 0;
             // 
             // cbxQuality
             // 
@@ -185,8 +185,8 @@
             "Video only"});
             this.cbxQuality.Location = new System.Drawing.Point(599, 23);
             this.cbxQuality.Name = "cbxQuality";
-            this.cbxQuality.Size = new System.Drawing.Size(153, 21);
-            this.cbxQuality.TabIndex = 8;
+            this.cbxQuality.Size = new System.Drawing.Size(150, 21);
+            this.cbxQuality.TabIndex = 1;
             // 
             // label2
             // 
@@ -201,7 +201,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(892, 253);
+            this.ClientSize = new System.Drawing.Size(889, 261);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.cbxQuality);
             this.Controls.Add(this.cbxYoutubeVideo);

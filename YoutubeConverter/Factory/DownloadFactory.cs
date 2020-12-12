@@ -45,14 +45,13 @@ namespace YoutubeConverter.Factory
         {
             return Task.Run(async () =>
             {
-                var task = Create(downloadTask.YoutubeUrl, downloadTask.Option, downloadTask.CancellationToken);
                 var youtube = new YoutubeClient();
                 var streamManifest = await youtube.Videos.Streams.GetManifestAsync(downloadTask.YoutubeUrl);
                 var streamInfo = streamManifest.GetStreamFomVideoOption(downloadTask.Option);
                 var streamInfoSet = streamInfo.Where(s => s.Container == YoutubeExplode.Videos.Streams.Container.Mp4);
                 var videoStreaming = streamInfoSet.WithHighestVideoQuality();
 
-                await youtube.Videos.Streams.DownloadAsync(videoStreaming, task.OutputFileName, cancellationToken: downloadTask.CancellationToken.Token);
+                await youtube.Videos.Streams.DownloadAsync(videoStreaming, downloadTask.OutputFileName, cancellationToken: downloadTask.CancellationToken.Token);
                 
                 return downloadTask;
             }, downloadTask.CancellationToken.Token);
