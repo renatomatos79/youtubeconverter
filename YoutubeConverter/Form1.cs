@@ -12,6 +12,7 @@ namespace YoutubeConverter
     {
         private List<DownloadTask> rows = new List<DownloadTask>();
         static readonly object lockControl = new object();
+        static readonly VideoOption[] Options = new VideoOption[] { VideoOption.Video, VideoOption.VideoOnly };
 
         public Form1()
         {
@@ -66,8 +67,14 @@ namespace YoutubeConverter
                     return;
                 }
 
+                if (cbxQuality.SelectedIndex < 0)
+                {
+                    MessageBox.Show("Please choose one conversion kind");
+                    return;
+                }
+
                 var cancellationTokenSource = new CancellationTokenSource();
-                var downloadTask = DownloadFactory.Create(cbxYoutubeVideo.Text, cancellationTokenSource);
+                var downloadTask = DownloadFactory.Create(cbxYoutubeVideo.Text, Options[cbxQuality.SelectedIndex], cancellationTokenSource);
                 DownloadFactory.Download(downloadTask).ContinueWith((tk)=> 
                 {
                     if (tk != null && tk.Status == TaskStatus.RanToCompletion)

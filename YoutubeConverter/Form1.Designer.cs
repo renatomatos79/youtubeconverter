@@ -34,7 +34,6 @@
             this.dlgMp4 = new System.Windows.Forms.OpenFileDialog();
             this.lblDownloading = new System.Windows.Forms.TextBox();
             this.dtgYoutube = new System.Windows.Forms.DataGridView();
-            this.cbxYoutubeVideo = new System.Windows.Forms.ComboBox();
             this.ProcessId = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.StartedOn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Url = new System.Windows.Forms.DataGridViewLinkColumn();
@@ -42,6 +41,9 @@
             this.Status = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CompletedOn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Action = new System.Windows.Forms.DataGridViewButtonColumn();
+            this.cbxYoutubeVideo = new System.Windows.Forms.ComboBox();
+            this.cbxQuality = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.dtgYoutube)).BeginInit();
             this.SuspendLayout();
             // 
@@ -103,21 +105,6 @@
             this.dtgYoutube.TabIndex = 6;
             this.dtgYoutube.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dtgYoutube_CellContentClick);
             // 
-            // cbxYoutubeVideo
-            // 
-            this.cbxYoutubeVideo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbxYoutubeVideo.FormattingEnabled = true;
-            this.cbxYoutubeVideo.Items.AddRange(new object[] {
-            "https://www.youtube.com/watch?v=T-Mlrp5x2_M",
-            "https://www.youtube.com/watch?v=k9JRuIO3cjk",
-            "https://www.youtube.com/watch?v=X48VuDVv0do",
-            "https://www.youtube.com/watch?v=b9Gb9v675YI"});
-            this.cbxYoutubeVideo.Location = new System.Drawing.Point(15, 25);
-            this.cbxYoutubeVideo.Name = "cbxYoutubeVideo";
-            this.cbxYoutubeVideo.Size = new System.Drawing.Size(737, 21);
-            this.cbxYoutubeVideo.TabIndex = 7;
-            // 
             // ProcessId
             // 
             this.ProcessId.DataPropertyName = "ProcessId";
@@ -172,11 +159,51 @@
             this.Action.Name = "Action";
             this.Action.ReadOnly = true;
             // 
+            // cbxYoutubeVideo
+            // 
+            this.cbxYoutubeVideo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxYoutubeVideo.FormattingEnabled = true;
+            this.cbxYoutubeVideo.Items.AddRange(new object[] {
+            "https://www.youtube.com/watch?v=T-Mlrp5x2_M",
+            "https://www.youtube.com/watch?v=k9JRuIO3cjk",
+            "https://www.youtube.com/watch?v=X48VuDVv0do",
+            "https://www.youtube.com/watch?v=b9Gb9v675YI"});
+            this.cbxYoutubeVideo.Location = new System.Drawing.Point(15, 25);
+            this.cbxYoutubeVideo.Name = "cbxYoutubeVideo";
+            this.cbxYoutubeVideo.Size = new System.Drawing.Size(578, 21);
+            this.cbxYoutubeVideo.TabIndex = 7;
+            // 
+            // cbxQuality
+            // 
+            this.cbxQuality.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbxQuality.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbxQuality.FormattingEnabled = true;
+            this.cbxQuality.Items.AddRange(new object[] {
+            "Video",
+            "Video only"});
+            this.cbxQuality.Location = new System.Drawing.Point(599, 23);
+            this.cbxQuality.Name = "cbxQuality";
+            this.cbxQuality.Size = new System.Drawing.Size(153, 21);
+            this.cbxQuality.TabIndex = 8;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(596, 7);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(43, 13);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "Options";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(892, 253);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.cbxQuality);
             this.Controls.Add(this.cbxYoutubeVideo);
             this.Controls.Add(this.dtgYoutube);
             this.Controls.Add(this.lblDownloading);
@@ -208,6 +235,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Status;
         private System.Windows.Forms.DataGridViewTextBoxColumn CompletedOn;
         private System.Windows.Forms.DataGridViewButtonColumn Action;
+        private System.Windows.Forms.ComboBox cbxQuality;
+        private System.Windows.Forms.Label label2;
     }
 }
 

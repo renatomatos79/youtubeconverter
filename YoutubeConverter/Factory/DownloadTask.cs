@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 
 namespace YoutubeConverter.Factory
 {
+    public enum VideoOption { Video, VideoOnly }
+
     public class DownloadTask
     {
         public DownloadTask()
@@ -16,6 +18,7 @@ namespace YoutubeConverter.Factory
 
         public string ProcessId { get; }
         public string YoutubeUrl { get; set; }
+        public VideoOption Option { get; set; }
         public string OutputFileName { get; set; }
         public DateTime StartedOn { get; set; }
         public DateTime? CompletedOn { get; set; }

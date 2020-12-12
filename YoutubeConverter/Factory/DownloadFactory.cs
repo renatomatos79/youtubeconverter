@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,6 +10,15 @@ namespace YoutubeConverter.Factory
 {
     public static class DownloadFactory
     {
+        public static IEnumerable<IVideoStreamInfo> GetStreamFomVideoOption(this StreamManifest streamManifest, VideoOption videoOption)
+        {
+            if (videoOption == VideoOption.Video)
+            {
+                return streamManifest.GetVideo();
+            }
+            return streamManifest.GetVideoOnly();
+        }
+
         private static string GetFileName()
         {
             var downloadFolder = System.IO.Path.Combine(System.Environment.CurrentDirectory, "Downloads");
@@ -19,12 +29,13 @@ namespace YoutubeConverter.Factory
             return System.IO.Path.Combine(downloadFolder, $"{Guid.NewGuid()}.mp4");
         }
 
-        public static DownloadTask Create(string youtubeUrl, CancellationTokenSource cancellationTokenSource)
+        public static DownloadTask Create(string youtubeUrl, VideoOption videoOption, CancellationTokenSource cancellationTokenSource)
         {
             return new DownloadTask() 
             {
                 OutputFileName = GetFileName(),
                 YoutubeUrl = youtubeUrl,
+                Option = videoOption,
                 StartedOn = DateTime.Now,
                 CancellationToken = cancellationTokenSource
             };
@@ -34,14 +45,14 @@ namespace YoutubeConverter.Factory
         {
             return Task.Run(async () =>
             {
-                var task = Create(downloadTask.YoutubeUrl, downloadTask.CancellationToken);
+                var task = Create(downloadTask.YoutubeUrl, downloadTask.Option, downloadTask.CancellationToken);
                 var youtube = new YoutubeClient();
-                var taskStramInfoVideo = (await youtube.Videos.Streams.GetManifestAsync(downloadTask.YoutubeUrl))
-                .GetVideoOnly()
-                .Where(s => s.Container == Container.Mp4)
-                .WithHighestVideoQuality();
+                var streamManifest = await youtube.Videos.Streams.GetManifestAsync(downloadTask.YoutubeUrl);
+                var streamInfo = streamManifest.GetStreamFomVideoOption(downloadTask.Option);
+                var streamInfoSet = streamInfo.Where(s => s.Container == YoutubeExplode.Videos.Streams.Container.Mp4);
+                var videoStreaming = streamInfoSet.WithHighestVideoQuality();
 
-                await youtube.Videos.Streams.DownloadAsync(taskStramInfoVideo, task.OutputFileName, cancellationToken: downloadTask.CancellationToken.Token);
+                await youtube.Videos.Streams.DownloadAsync(videoStreaming, task.OutputFileName, cancellationToken: downloadTask.CancellationToken.Token);
                 
                 return downloadTask;
             }, downloadTask.CancellationToken.Token);
